@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">ResolutionsDiary</string>
+    <string name="diary">Tagebuch</string>
+    <string name="write_sentence">Satz geschrieben</string>
+    <string name="played_piano">Klavier gespielt</string>
+    <string name="youtube_time_limit">YouTube Zeitlimit eingehalten</string>
+    <string name="read_sentence">Satz gelesen</string>
+    <string name="dailyGoals">Tagesziele</string>
+    <string name="ok">OK</string>
+    <string name="no_data">keine Daten</string>
+    <string name="history">Aufzeichnung</string>
+</resources>
