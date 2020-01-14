@@ -2,10 +2,13 @@ package com.example.resolutionsdiary;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,7 +25,18 @@ public abstract class AppDatabase extends RoomDatabase {
         if (INSTANCE ==null) {
             synchronized ((AppDatabase.class)) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),AppDatabase.class,"diary_database").build();
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),AppDatabase.class,"diary_database").addCallback(new Callback() {
+                        @Override
+                        public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                            super.onCreate(db);
+                            Executors.newSingleThreadScheduledExecutor().execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    INSTANCE.diaryDao().insert(new Diary(new Date(),false,false,false,false,false));
+                                }
+                            });
+                        }
+                    }).build();
                 }
             }
 

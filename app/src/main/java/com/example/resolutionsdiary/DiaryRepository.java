@@ -6,6 +6,7 @@ import android.util.Log;
 
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -20,50 +21,41 @@ public class DiaryRepository {
 
     private DiaryDao mDiaryDao;
     private LiveData<List<Diary>> mAllEntries;
-
+    private LiveData<List<Diary>> mEntriesToday;
     DiaryRepository(Application application) {
         AppDatabase db = AppDatabase.getDatabase(application);
         mDiaryDao = db.diaryDao();
         mAllEntries = mDiaryDao.getAll();
+        mEntriesToday = mDiaryDao.findEntriesByDate(Dates.getYesterdayMidnight(), Dates.getTomdayMidnight());
     }
 
     LiveData<List<Diary>> getmAllEntries() {
         return mAllEntries;
     }
+    LiveData<List<Diary>> getmEntriesToday() { return mEntriesToday;}
+
     void add(Diary diary) {
-        Calendar calStart = new GregorianCalendar();
-        calStart.setTime(diary.date);
-        calStart.set(Calendar.DAY_OF_MONTH, calStart.get(Calendar.DAY_OF_MONTH) -1 );
-        calStart.set(Calendar.HOUR_OF_DAY, 0);
-        calStart.set(Calendar.MINUTE, 0);
-        calStart.set(Calendar.SECOND, 0);
-        calStart.set(Calendar.MILLISECOND, 1);
-        Date midnightYesterday = calStart.getTime();
+        Observer<List<Diary>> observerEntriesToday = new Observer<List<Diary>>() {
+            @Override
+            public void onChanged(List<Diary> diaries) {
+                if (diaries != null) {
+                    Log.e(TAG, "add: with matching entries"+ diaries.get(0) + " add: " +  diary );
+                    diaries.get(0).addAttributes(diary);
+                    new updateDiaryAsyncTask(mDiaryDao).execute(diaries.get(0));
+                } else {
+                    Log.e(TAG, "add: without matching entries"+" add: " +  diary );
+                    new insertDiaryAsyncTask(mDiaryDao).execute(diary);
+                }
+            }
+        };
 
-        Calendar calEnd = new GregorianCalendar();
-        calEnd.setTime(diary.date);
-        calEnd.set(Calendar.HOUR_OF_DAY, 23);
-        calEnd.set(Calendar.MINUTE, 59);
-        calEnd.set(Calendar.SECOND, 59);
-        calEnd.set(Calendar.MILLISECOND, 999);
-        Date midnightTonight = calEnd.getTime();
-        List<Diary> matchingEntries = mDiaryDao.findEntriesByDate(midnightYesterday, midnightTonight).getValue();
+        getmEntriesToday().observeForever(observerEntriesToday);
+        getmEntriesToday().removeObserver(observerEntriesToday);
 
-        DateFormat dateFormat = new SimpleDateFormat("kk:mm - dd.MM");
-        Log.e(TAG, "add: dates yesterday" + dateFormat.format(midnightYesterday) + " today " + dateFormat.format(midnightTonight)  );
-        if (matchingEntries != null) {
-            Log.e(TAG, "add: with matching entries"+ matchingEntries.get(0) + " add: " +  diary );
-            matchingEntries.get(0).addAttributes(diary);
-            this.update(matchingEntries.get(0));
-        } else {
-            Log.e(TAG, "add: without matching entries"+" add: " +  diary );
-            this.insert(diary);
-        }
+
     }
     private void insert(Diary diary) {
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            mDiaryDao.insert(diary);
-        });
+        new insertDiaryAsyncTask(mDiaryDao).execute(diary);
     }
 
     void insertAll(Diary...diaries) {
@@ -73,15 +65,35 @@ public class DiaryRepository {
     }
 
     void update(Diary diary) {
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            mDiaryDao.update(diary);
-        });
+        new updateDiaryAsyncTask(mDiaryDao).execute(diary);
     }
     void delete(Diary diary) {
         new deleteDiaryAsyncTask(mDiaryDao).execute(diary);
     }
     LiveData<List<Diary>> findEntriesByDate(Date from, Date to)  {
         return mDiaryDao.findEntriesByDate(from, to);
+    }
+    private static class updateDiaryAsyncTask extends AsyncTask<Diary,Void,Void> {
+        private DiaryDao mAsyncTaskDao;
+
+        updateDiaryAsyncTask(DiaryDao dao) { mAsyncTaskDao = dao;}
+
+        @Override
+        protected Void doInBackground(final Diary... params) {
+            mAsyncTaskDao.update(params[0]);
+            return null;
+        }
+    }
+    private static class insertDiaryAsyncTask extends AsyncTask<Diary,Void,Void> {
+        private DiaryDao mAsyncTaskDao;
+
+        insertDiaryAsyncTask(DiaryDao dao) { mAsyncTaskDao = dao;}
+
+        @Override
+        protected Void doInBackground(final Diary... params) {
+            mAsyncTaskDao.insert(params[0]);
+            return null;
+        }
     }
     private static class deleteDiaryAsyncTask extends AsyncTask<Diary, Void, Void> {
         private DiaryDao mAsyncTaskDao;

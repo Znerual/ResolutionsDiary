@@ -15,7 +15,7 @@ import java.util.List;
 @Dao
 @TypeConverters({Converters.class})
 public interface DiaryDao {
-    @Query("SELECT * FROM diary ORDER BY date")
+    @Query("SELECT * FROM diary ORDER BY date ASC")
     LiveData<List<Diary>> getAll();
 
 

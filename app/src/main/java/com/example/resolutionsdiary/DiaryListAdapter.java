@@ -56,8 +56,8 @@ public class DiaryListAdapter extends RecyclerView.Adapter<DiaryListAdapter.Diar
             if (mEntries.size() < position)
                 Log.e(TAG, "onBindViewHolder: mEntries ist kleienr als die Position" + mEntries.size()+ " < " + position );
 
-                DateFormat dateFormat = new SimpleDateFormat("dd.MM");
-                holder.dateItemView.setText(dateFormat.format(current.date));
+
+                holder.dateItemView.setText(Dates.date_toString(current.date));
                 holder.diaryItemView.setText(current.diary ? mContext.getString(R.string.diary) : "");
                 holder.readingItemView.setText(current.reading ? mContext.getString(R.string.read_sentence) : "");
                 holder.writingItemView.setText(current.writing ? mContext.getString(R.string.write_sentence) : "");

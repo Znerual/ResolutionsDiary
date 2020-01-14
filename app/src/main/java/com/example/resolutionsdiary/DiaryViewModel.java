@@ -11,7 +11,6 @@ public class DiaryViewModel extends AndroidViewModel {
     private DiaryRepository mRepositroy;
 
     private LiveData<List<Diary>> mAllEntries;
-
     public DiaryViewModel(Application application) {
         super(application);
         mRepositroy = new DiaryRepository(application);
@@ -19,6 +18,6 @@ public class DiaryViewModel extends AndroidViewModel {
     }
 
     LiveData<List<Diary>> getmAllEntries() { return mAllEntries;}
-
+    LiveData<List<Diary>> getmEntriesToday() {return mRepositroy.getmEntriesToday();}
     public void insert(Diary diary) {mRepositroy.add(diary);}
 }
