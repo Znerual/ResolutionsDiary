@@ -6,6 +6,7 @@ import android.util.Log;
 
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import java.text.DateFormat;
@@ -22,11 +23,19 @@ public class DiaryRepository {
     private DiaryDao mDiaryDao;
     private LiveData<List<Diary>> mAllEntries;
     private LiveData<List<Diary>> mEntriesToday;
+    private MutableLiveData<List<Diary>> mEntriesTodayMutable = new MutableLiveData<>();
     DiaryRepository(Application application) {
         AppDatabase db = AppDatabase.getDatabase(application);
         mDiaryDao = db.diaryDao();
         mAllEntries = mDiaryDao.getAll();
         mEntriesToday = mDiaryDao.findEntriesByDate(Dates.getYesterdayMidnight(), Dates.getTomdayMidnight());
+        mEntriesToday.observeForever(new Observer<List<Diary>>() {
+            @Override
+            public void onChanged(List<Diary> diaries) {
+                mEntriesTodayMutable.setValue(diaries);
+            }
+        });
+
     }
 
     LiveData<List<Diary>> getmAllEntries() {
@@ -35,22 +44,30 @@ public class DiaryRepository {
     LiveData<List<Diary>> getmEntriesToday() { return mEntriesToday;}
 
     void add(Diary diary) {
-        Observer<List<Diary>> observerEntriesToday = new Observer<List<Diary>>() {
-            @Override
-            public void onChanged(List<Diary> diaries) {
-                if (diaries != null) {
-                    Log.e(TAG, "add: with matching entries"+ diaries.get(0) + " add: " +  diary );
-                    diaries.get(0).addAttributes(diary);
-                    new updateDiaryAsyncTask(mDiaryDao).execute(diaries.get(0));
-                } else {
-                    Log.e(TAG, "add: without matching entries"+" add: " +  diary );
-                    new insertDiaryAsyncTask(mDiaryDao).execute(diary);
-                }
-            }
-        };
+        List<Diary> entries = mEntriesTodayMutable.getValue();
+        if (entries == null) {
+            Log.e(TAG, "Entries Null, add: without matching entries"+" add: " +  diary );
+            entries.add(diary);
 
-        getmEntriesToday().observeForever(observerEntriesToday);
-        getmEntriesToday().removeObserver(observerEntriesToday);
+            mEntriesTodayMutable.setValue(entries);
+            new insertDiaryAsyncTask(mDiaryDao).execute(diary);
+        } else {
+                for (Diary entry : entries) {
+                    if (Dates.isToday(entry.date)) {
+                        Log.e(TAG, "add: with matching entries"+ entry + " add: " +  diary );
+                        entry.addAttributes(diary);
+
+                        new updateDiaryAsyncTask(mDiaryDao).execute(entry);
+                        return;
+                    }
+                }
+                Log.e(TAG, "No Entry Today, add: without matching entries"+" add: " +  diary );
+                entries.add(diary);
+                mEntriesTodayMutable.setValue(entries);
+                new insertDiaryAsyncTask(mDiaryDao).execute(diary);
+
+        }
+
 
 
     }

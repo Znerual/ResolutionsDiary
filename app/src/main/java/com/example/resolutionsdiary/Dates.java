@@ -39,4 +39,7 @@ public class Dates {
         DateFormat dateFormat = new SimpleDateFormat("dd.MM");
         return dateFormat.format(date);
     }
+    public static boolean isToday(Date date) {
+        return date.getTime() > getYesterdayMidnight().getTime() && date.getTime() < getTomdayMidnight().getTime();
+    }
 }
