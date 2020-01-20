@@ -14,14 +14,13 @@ import java.util.Date;
 import java.util.List;
 
 @Dao
-@TypeConverters({Converters.class})
 public interface DiaryDao {
     @Query("SELECT * FROM diary ORDER BY date ASC")
     LiveData<List<Diary>> getAll();
 
 
-    @Query("SELECT * FROM diary WHERE date BETWEEN :from AND :to")
-    LiveData<List<Diary>> findEntriesByDate(Date from, Date to);
+    @Query("SELECT * FROM diary WHERE date BETWEEN :from AND :to ORDER BY date ASC")
+    LiveData<List<Diary>> findEntriesByDate(long from, long to);
 
     @Insert
     void insertAll(Diary... diaries);

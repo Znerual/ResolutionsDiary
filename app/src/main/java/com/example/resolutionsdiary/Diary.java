@@ -15,13 +15,12 @@ import java.util.Date;
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 @Entity(tableName = "diary")
-@TypeConverters({Converters.class})
 public class Diary {
    // @PrimaryKey(autoGenerate = true)
    // public int uid;
     @PrimaryKey
     @ColumnInfo(name = "date")
-    public Date date;
+    public long date;
 
     @ColumnInfo(name = "diary")
     public boolean diary;
@@ -38,7 +37,7 @@ public class Diary {
     @ColumnInfo(name = "youtube")
     public boolean youtube;
 
-    public Diary(Date date, boolean diary, boolean reading, boolean writing, boolean piano, boolean youtube) {
+    public Diary(long date, boolean diary, boolean reading, boolean writing, boolean piano, boolean youtube) {
         this.date = date;
         this.diary = diary;
         this.writing = writing;
@@ -60,7 +59,7 @@ public class Diary {
     public String toString() {
         DateFormat dateFormat = new SimpleDateFormat("dd.MM");
 
-        return "Date " + dateFormat.format(date)+  " Diary " + diary+ " Reading " + reading + " Writing " + writing + " Piano " + piano + " Youtube " + youtube;
+        return "Date " + dateFormat.format(new Date(date))+  " Diary " + diary+ " Reading " + reading + " Writing " + writing + " Piano " + piano + " Youtube " + youtube;
 
     }
 }

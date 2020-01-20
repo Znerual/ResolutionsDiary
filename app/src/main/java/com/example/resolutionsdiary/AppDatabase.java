@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Diary.class}, version = 2, exportSchema = false)
+@Database(entities = {Diary.class}, version = 1, exportSchema = false)
 
 public abstract class AppDatabase extends RoomDatabase {
     public abstract DiaryDao diaryDao();
@@ -32,7 +32,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             Executors.newSingleThreadScheduledExecutor().execute(new Runnable() {
                                 @Override
                                 public void run() {
-                                    INSTANCE.diaryDao().insert(new Diary(new Date(),false,false,false,false,false));
+                                    INSTANCE.diaryDao().insert(new Diary(new Date().getTime(),false,false,false,false,false));
                                 }
                             });
                         }

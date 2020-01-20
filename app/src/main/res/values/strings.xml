@@ -9,4 +9,21 @@
     <string name="ok">OK</string>
     <string name="no_data">keine Daten</string>
     <string name="history">Aufzeichnung</string>
+    <string name="lastMonth">letztes Monat</string>
+    <string name="nextMonth">nächstes Monat</string>
+    <string-array
+        name="months">
+        <item>Jänner</item>
+        <item>Februar</item>
+        <item>März</item>
+        <item>April</item>
+        <item>Mai</item>
+        <item>Juni</item>
+        <item>Juli</item>
+        <item>August</item>
+        <item>September</item>
+        <item>Oktober</item>
+        <item>November</item>
+        <item>Dezember</item>
+    </string-array>
 </resources>

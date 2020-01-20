@@ -9,11 +9,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+
 import java.util.List;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
@@ -23,6 +19,7 @@ public class DiaryRepository {
     private DiaryDao mDiaryDao;
     private LiveData<List<Diary>> mAllEntries;
     private LiveData<List<Diary>> mEntriesToday;
+    private LiveData<List<Diary>> mEntriesInMonth;
     private MutableLiveData<List<Diary>> mEntriesTodayMutable = new MutableLiveData<>();
     DiaryRepository(Application application) {
         AppDatabase db = AppDatabase.getDatabase(application);
@@ -42,7 +39,11 @@ public class DiaryRepository {
         return mAllEntries;
     }
     LiveData<List<Diary>> getmEntriesToday() { return mEntriesToday;}
-
+    LiveData<List<Diary>> getmEntriesMonth(int month) {
+        mEntriesInMonth = mDiaryDao.findEntriesByDate(Dates.getMonthStart(month),Dates.getMonthEnd(month));
+        Log.e(TAG, "getmEntriesMonth: " + Dates.getMonthStart(month) + " end " + Dates.getMonthEnd(month) );
+        return mEntriesInMonth;
+    }
     void add(Diary diary) {
         List<Diary> entries = mEntriesTodayMutable.getValue();
         if (entries == null) {
@@ -87,9 +88,7 @@ public class DiaryRepository {
     void delete(Diary diary) {
         new deleteDiaryAsyncTask(mDiaryDao).execute(diary);
     }
-    LiveData<List<Diary>> findEntriesByDate(Date from, Date to)  {
-        return mDiaryDao.findEntriesByDate(from, to);
-    }
+
     private static class updateDiaryAsyncTask extends AsyncTask<Diary,Void,Void> {
         private DiaryDao mAsyncTaskDao;
 

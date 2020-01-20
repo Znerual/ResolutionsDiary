@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import static android.content.ContentValues.TAG;
@@ -57,7 +58,7 @@ public class DiaryListAdapter extends RecyclerView.Adapter<DiaryListAdapter.Diar
                 Log.e(TAG, "onBindViewHolder: mEntries ist kleienr als die Position" + mEntries.size()+ " < " + position );
 
 
-                holder.dateItemView.setText(Dates.date_toString(current.date));
+                holder.dateItemView.setText(Dates.date_toString(new Date(current.date)));
                 holder.diaryItemView.setText(current.diary ? mContext.getString(R.string.diary) : "");
                 holder.readingItemView.setText(current.reading ? mContext.getString(R.string.read_sentence) : "");
                 holder.writingItemView.setText(current.writing ? mContext.getString(R.string.write_sentence) : "");

@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         CheckBox writingCh = (CheckBox) findViewById(R.id.writingCheckBox);
         CheckBox pianoCh = (CheckBox) findViewById(R.id.pianoCheckBox);
         CheckBox youtubeCh = (CheckBox) findViewById(R.id.youtubeCheckBox);
-        Diary addDiary = new Diary(new Date(), diaryCh.isChecked(), readingCh.isChecked(),writingCh.isChecked(),pianoCh.isChecked(),youtubeCh.isChecked());
+        Diary addDiary = new Diary(new Date().getTime(), diaryCh.isChecked(), readingCh.isChecked(),writingCh.isChecked(),pianoCh.isChecked(),youtubeCh.isChecked());
         mDiaryViewModel.insert(addDiary);
         startActivity(intent);
 
